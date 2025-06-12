@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Realtime con MongoDB</title>
+</head>
+<body>
+  <h2>Chat en Tiempo Real</h2>
+  <ul id="messages"></ul>
+  <input id="user" placeholder="Tu nombre" />
+  <input id="msg" placeholder="Escribe algo..." />
+  <button onclick="sendMessage()">Enviar</button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    socket.on('init', (messages) => {
+      messages.forEach(addMessage);
+    });
+
+    socket.on('message', (msg) => {
+      addMessage(msg);
+    });
+
+    function addMessage({ user, content }) {
+      const li = document.createElement('li');
+      li.textContent = `${user}: ${content}`;
+      document.getElementById('messages').appendChild(li);
+    }
+
+    function sendMessage() {
+      const user = document.getElementById('user').value;
+      const content = document.getElementById('msg').value;
+      if (user && content) {
+        socket.emit('newMessage', { user, content });
+        document.getElementById('msg').value = '';
+      }
+    }
+  </script>
+</body>
+</html>
